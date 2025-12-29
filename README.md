@@ -1,118 +1,229 @@
-# Transfer-Learning
+# 🧠⚔️ TRANSFER LEARNING — MAIN QUEST
 
-## Introduction
+> *“Reuse knowledge. Reduce grind. Optimize evolution.”*
 
-Training a Machine Learning model, is an intense process and is quite time-consuming. Training these models demand more computing power, large data before the production of these models. With the use of the Transfer Learning technique, a model can be pre-trained on a certain task and later adapted and refined for a new, related task.
+---
 
-## Dataset Statistics
+## 🗺️ Quest Overview
 
-### Dataset for Source GP 
-Title of Data Set: 227_cpu_small
+Training Machine Learning models is a **high-cost grind** — large datasets, long training times, and heavy compute requirements.  
+This project applies **Transfer Learning** within a **Genetic Programming (GP)** framework to reduce training effort by reusing knowledge from a **Source Task** and adapting it to a **Target Task**.
 
-Variables : 13 
+A pre-trained GP population is transferred, refined, and evolved to solve a related problem more efficiently.
 
-Observations : 8192 
+---
 
-Attribute Characteristics: Continuous 
+## 📊 DATASETS — QUEST MAP
 
-Missing/NaN Values: The dataset does contain zero values. 
+### 🧠 Source GP Dataset
 
-Duplicate rows : None
+- **Name:** `227_cpu_small`
+- **Observations:** 8,192
+- **Variables:** 13
+- **Attributes:** Continuous
+- **Missing / NaN Values:** Zero values present
+- **Duplicate Rows:** None
 
-### Dataset for Target GP
+---
 
-Title of Data Set: 197_cpu_act
+### 🎯 Target GP Dataset
 
-Variables : 20 
+- **Name:** `197_cpu_act`
+- **Observations:** 8,192
+- **Variables:** 20
+- **Attributes:** Continuous
+- **Missing / NaN Values:** Zero values present
+- **Duplicate Rows:** None
 
-Observations : 8192 
+---
 
-Attribute Characteristics: Continuous 
+### 🛠️ Pre-Processing Buffs
 
-Missing/NaN Values: The dataset does contain zero values.
+- Duplicate rows **removed** to reduce bias
+- **Min–Max Normalization** applied to all features
 
-Duplicate rows : None
+Normalization prevents features with large numeric ranges (e.g. `freemem`) from overpowering smaller-scale features (e.g. `runqsz`), ensuring fair contribution during evolution.
 
-The datasets are pre-proccessed by dropping duplicates and normalized. Duplicates are 'dropped' to reduce model bias. The data normalization method used is the Min-Max normalization, due to fields such as freemem where the data is large and runqsz where the data are small. Normalize assist in such cases so that the model doesn't regard a certain feature to be more important than the other just because it has a larger value.
+---
 
-## Representation 
+## 🌳 MODEL REPRESENTATION — SKILL TREE
 
-The regressor is represented as an expression tree. Each individual of the tree is made up of the root node that is randomly selected from the functional set and the leaf nodes that are randomly selected from either the terminal set or functional set, to create expressions. An expression tree is known for its flexibility.Expression trees make it easier for the information at nodes to be accessed and manipulated. In the expression tree, a node could either be an operator or an operand.
+The GP regressor is represented as an **Expression Tree**:
 
-The initial population was generated using the growth method. The growth method generates a tree with an initial depth of n. In this report, the initial depth of the tree is 0, to start generating simple trees.
+- **Internal Nodes:** Operators  
+- **Leaf Nodes:** Operands (terminals)
 
-## Fitness Function
+Each individual consists of:
+- A **root node** selected from the functional set
+- Child nodes selected from functional or terminal sets
 
-A fitness function is a function used to calculate and assign a non-negative value, to evaluate how best suited an individual of the population. The use of the mean absolute error(MAE) is due to it never returning a negative value, meeting the requirement for a fitness function which a non-neagtive number.
+Expression trees offer flexibility and allow easy manipulation during evolution.
 
-In order to calculate a fitness function ,the MAE is used to evaluate each equation -individual of the population.
+### 🌱 Initial Population
 
-## Selection Method
+- **Generation Method:** Growth Method
+- **Initial Tree Depth:** `0`
+- Ensures simple expressions at the start of evolution
 
-A selection method randomly selects two or more individuals in the population as parents for the next generation. In this report, tournament selection is the selection method of choice. For k individuals, a random number of individuals are selected, for n, number of parents. The individuals with the smallest fitness score is selected for reproduction. Tournament selection is preferable as it is simple and has a complexity of O(n), which makes it easier to compute. One parent is returned in the selection method.
+---
 
-## Genetic Operators
+## 📐 FITNESS FUNCTION — DAMAGE CALCULATION
 
-Genetic operators assist with creating 'children' in the population from the parents. 
-In this report, Crossover and Mutation are used. The combination of these genetic operators allows for both the exploitation and exploration of the search space. Crossover will be use for \textit{exploitation} in the search space meaning that cross over will combine two 'good' attributes from the parent trees as per fitness. whereas Mutation will be used for \textit{exploration} to introduce variety and new parts of the search space.
+**Mean Absolute Error (MAE)** is used as the fitness function.
 
-### Crossover Operator
+**Why MAE?**
+- Always **non-negative**
+- Robust to outliers
+- Ideal for regression-based GP evaluation
 
-The crossover operator will swap out sub-trees of the parents. It locates a random point in the sub-trees of the parent trees then the selected sub-trees will be "crossed over" to the other parent tree. \\ This method is called subtree crossover. The rate is used to determine how much crossover is applied to the population.
+Each individual expression is evaluated using MAE — **lower is better**.
 
-### Mutation Operator
+---
 
-The mutation operator locates a random point in the parent tree then replacing the node or leaf at that tree with a random node from the search space. This is called Point Mutation. The rate is used to control how much of the population will get mutated.
+## 🎯 SELECTION METHOD — PARTY RECRUITMENT
 
-## Transfer Learning
+**Tournament Selection** is used:
 
-As per the introduction, the source GP is used to pre-train the model with the help of the source dataset. During the training of the model a population of size n is produced at the end of each generation then the last population of the source GP are then transferred to the target GP. The transfer rate used determines how much of the source population will make the initial population of the target GP and the rest of the population is generated using the growth method. The population is then evolved using the genetic operators over $g$ generations. The fitness is the recieved afterwards.
+- Randomly selects `k` individuals
+- The individual with the **lowest fitness score** wins
+- One parent returned per tournament
 
-## Termination Criteria
+**Why Tournament Selection?**
+- Simple and efficient
+- Computational complexity: **O(n)**
+- Maintains balanced selection pressure
 
-The termination criteria of the GP's is the number of generations.
+---
 
-## Parameters
+## 🧬 GENETIC OPERATORS — EVOLUTION MECHANICS
 
-The parameters used in this paper are, after parameter tuning :
+Two operators drive evolution:
 
-### Population Size
+- **Crossover** → Exploitation  
+- **Mutation** → Exploration  
 
-#### Source GP: 50
+This balance ensures both refinement of strong individuals and discovery of new solutions.
 
-A moderate population size is chosen, to create diversity, yet not too diverse to ignore important features. due to the large dataset, it will be easier to train the model
+---
 
-#### Target GP: 25
+### 🔀 Crossover (Subtree Swap)
 
-A small population size is chosen as to increase chances of selecting the trained population, yet include some novelty.
+- Random subtrees are selected from two parents
+- Subtrees are swapped to form offspring
+- Controlled by the **Crossover Rate**
 
-#### Crossover Rate: 60%
+---
 
-Crossover is applied against the individuals, if the random float is less than the crossover rate, crossover should occur, if crossover doesn't occur the individual should be added as is to the new population.
+### 🧫 Mutation (Point Mutation)
 
-#### Mutation Rate: 35%
+- A random node in the tree is replaced
+- Introduces novelty and diversity
+- Controlled by the **Mutation Rate**
 
-Mutation is applied against the individuals, if the random float is less than the mutation rate, mutation should occur, if mutation doesn't occur the individual should be added as it is. The slightly high mutation rate is due to the fact that only a point in the tree gets mutated. To increase novelty and reduce converging in the local optimum.
+---
 
-#### Elistism Rate: 5%
+## 🔁 TRANSFER LEARNING — KNOWLEDGE PASSIVE
 
-To control the growth of the trees generated, a max tree depth is used. After multiple simulations, the tree depth of 3, grew trees that were manageable and weren't too large to create noise.
+1. Source GP is trained on the source dataset
+2. Final source population is extracted
+3. A portion is transferred to the Target GP
+4. Remaining population is generated via growth method
+5. Target GP evolves over `g` generations
+6. Final fitness is evaluated on the target dataset
 
-#### Maximum tree depth: 3
+The **Transfer Rate** determines how much knowledge is reused from the source population.
 
-To control the growth and complexity of the trees generated, a max tree depth is used. After multiple simulations, the tree depth of 3, grew trees that were manageable and weren't too large to create noise.
+---
 
-#### Initial Population Generation Method: Growth Method
+## ⏹️ TERMINATION CONDITION
 
-#### Tournament Size: 2
+- Evolution ends after a **fixed number of generations**
 
-When more trees are selected in the tournament selection, high probability of selecting "good parents", however the size is not so high to that the chance of picking the same tree is reduced.
+---
 
-#### Functional set: {+,-,/,*,sqrt,cos,sin,log
+## ⚙️ PARAMETERS — BUILD STATS
 
-Basic mathematical operands are used including uriary operators such as cos, sin, log functions these operands are stored as strings in the array. This helps in the creation of an expression tree. Error handling is used to protect division by zero and taking the square-root of a negative number. In the case where the division by zero occurs, 1 is returned, in order to avoid program crashing and for the continuation of the GP. In the case of the square of a negative number, the absolute value of that number is taken therefore, allowing the square-root operand to be evaluated. with a non-negative input.
+### 👥 Population Size
 
+- **Source GP:** `50`
+  - Balances diversity and training efficiency
 
-#### Terminal set: f(xi) for i in range(1, num_features+1) + ["c"] 
+- **Target GP:** `25`
+  - Encourages reuse of transferred individuals while allowing novelty
 
-The terminal set is for all features in the dataset. The terminal set is depends on the features in each of the datasets used in the GP at the time. The values of x differ in each GP. For the source GP the terminal set will be x1,x2...x12 and constant, c. For the target GP the terminal set will be x1,x2...x19 and constant, c.
+---
+
+### 🔀 Crossover Rate — `60%`
+
+- If random value < 0.6 → crossover occurs
+- Otherwise, individual is copied unchanged
+
+---
+
+### 🧫 Mutation Rate — `35%`
+
+- Higher rate to encourage exploration
+- Reduces risk of premature convergence
+- Point mutation affects only one node
+
+---
+
+### 🏆 Elitism Rate — `5%`
+
+- Best individuals are preserved
+- Prevents loss of high-fitness solutions
+
+---
+
+### 🌲 Maximum Tree Depth — `3`
+
+- Prevents excessive tree growth
+- Reduces noise and bloat
+- Selected after multiple simulations
+
+---
+
+### 🌱 Initial Population Method
+
+- **Growth Method**
+
+---
+
+### 🎯 Tournament Size
+
+- **k = 2**
+- Balances selection pressure and diversity
+
+---
+
+### ➕ Functional & Terminal Sets
+
+**Functional Set:**
+{ +, -, *, /, sqrt, cos, sin, log }
+- Includes both binary and unary operators
+- Operators are stored as strings for expression tree construction
+
+**Terminal Set:**
+f(xi) for i in range(1, num_features+1) + ["c"]
+- Represents all features in the dataset and a constant `c`
+- Varies depending on the GP and dataset used:
+  - **Source GP:** `x1, x2, ..., x13` + constant `c`
+  - **Target GP:** `x1, x2, ..., x20` + constant `c`
+
+**Safety Handling:**
+- Division by zero → returns `1`
+- Square root of negative values → absolute value applied first
+
+This ensures robust evaluation and prevents crashes during evolution.
+
+---
+
+## 🏁 QUEST STATUS
+
+🧩 **Main Quest:** Transfer Learning with Genetic Programming  
+🚀 **Objective:** Reduce training cost while maintaining performance  
+🏆 **Reward:** Efficient knowledge reuse across related tasks
+
+---
+
+*Honours-level project — built for evolution, not brute force.*
